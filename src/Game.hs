@@ -5,6 +5,7 @@ import Data.List
 import Data.Maybe (fromJust, fromMaybe)
 
 import Common
+import Shuffler
 
 initialCardCount :: Int
 initialCardCount = 7
@@ -12,7 +13,7 @@ initialCardCount = 7
 initGame :: Int -> State
 
 -- TODO: Implement a method to initialize a new game given n players
-initGame n = State { players = [ ],
+initGame n = State { players = makePlayer n,
                      e_players = [ ],
                      deck = fullDeck,
                      d_stack = [ ],
@@ -24,7 +25,7 @@ initGameWithPlayers pa = gs' { players = clearHands pa } where
 
 -- TODO: Implement a method to setup the game
 setupGame :: State -> IO State
-setupGame gs = return (gs)
+setupGame gs = return (shuffleDeck gs)
 
 startGame :: State -> IO State
 startGame gs = pickNextAndPlay gs
@@ -218,3 +219,6 @@ useSimpleStrategy gs dcard hand = (TakeFromDeck, noCard)
 
 
 -- ADD extra codes after this line, so it's easy to rebase or merge code changes in Git --
+makePlayer :: Int -> [Player]
+makePlayer x | (x > 0) = [HPlayer {(name = "Player" ++ show x), hand = [ ]}] ++ makePlayer (x-1)
+             | otherwise = []
