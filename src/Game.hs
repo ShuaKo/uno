@@ -25,7 +25,13 @@ initGameWithPlayers pa = gs' { players = clearHands pa } where
 
 -- TODO: Implement a method to setup the game
 setupGame :: State -> IO State
-setupGame gs = return (shuffleDeck gs)
+setupGame gs@State {players = ps, e_players = e, deck = d, d_stack = ds, cur_player = c }
+          = shuffleDeck(State { players = deal d ps,
+                        e_players = e,
+                        deck = drop 29 d,
+                        d_stack = discard ds d,
+                        cur_player = noPlayer
+                  })
 
 startGame :: State -> IO State
 startGame gs = pickNextAndPlay gs
@@ -222,3 +228,12 @@ useSimpleStrategy gs dcard hand = (TakeFromDeck, noCard)
 makePlayer :: Int -> [Player]
 makePlayer x | (x > 0) = [HPlayer {(name = "Player" ++ show x), hand = [ ]}] ++ makePlayer (x-1)
              | otherwise = []
+
+deal :: [Card] -> [Player] -> [Player]
+deal [] _ = []
+deal _ [] = []
+deal deck' (c:cs) = c { hand =  (take 7 deck') }: deal (drop 7 deck') cs
+
+discard :: [Card] -> [Card] -> [Card]
+discard ds [] = ds
+discard ds d = ds ++ (take 1 d)
